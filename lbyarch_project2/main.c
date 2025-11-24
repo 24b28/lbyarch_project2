@@ -7,9 +7,11 @@
 extern double** imgCvtGrayIntToDouble(int n1, int n2, int** pixel, double** result);
 
 double** imgCvtGrayIntToDouble_C(int n1, int n2, int** arr);
-bool checkOutput(int n1, int n2, double** asm, double** c);
+bool checkOutput(int n1, int n2, double** asm_res, double** c);
 
 int main() {
+	LARGE_INTEGER freq, start, end;
+	QueryPerformanceFrequency(&freq);
 	int n1, n2;
 	int i, j;
 	printf("Input 2 integers: ");
@@ -35,15 +37,15 @@ int main() {
 		result[i] = (double*)malloc(n2 * sizeof(double));
 	}
 
-	clock_t begin_asm = clock();
+	QueryPerformanceCounter(&start);
 	result = imgCvtGrayIntToDouble(n1, n2, image, result);
-	clock_t end_asm = clock();
-	double time_spent_asm = (double)(end_asm - begin_asm) / CLOCKS_PER_SEC;
-
-	clock_t begin_c = clock();
+	QueryPerformanceCounter(&end);
+	double asm_time = (double)(end.QuadPart - start.QuadPart) / freq.QuadPart;
+	
+	QueryPerformanceCounter(&start);
 	double** sample = imgCvtGrayIntToDouble_C(n1, n2, image);
-	clock_t end_c = clock();
-	double time_spent_c = (double)(end_c - begin_c) / CLOCKS_PER_SEC;
+	QueryPerformanceCounter(&end);
+	double c_time = (double)(end.QuadPart - start.QuadPart) / freq.QuadPart;
 
 	printf("Correct Output: ");
 	if (checkOutput(n1, n2, result, sample)) {
@@ -53,8 +55,8 @@ int main() {
 		printf("No\n");
 	}
 
-	printf("ASM execution time: %.12lf seconds\n", time_spent_asm);
-	printf("C execution time: %.12lf seconds\n", time_spent_c);
+	printf("ASM execution time: %.12lf seconds\n", asm_time);
+	printf("C execution time: %.12lf seconds\n", c_time);
 
 	for (i = 0; i < n1; i++) {
 		free(image[i]);
@@ -68,14 +70,14 @@ int main() {
 	return 0;
 }
 
-bool checkOutput(int n1, int n2, double** asm, double** c) {
+bool checkOutput(int n1, int n2, double** asm_res, double** c) {
 	int i, j;
 
 	bool flag = 1;
 
 	for (i = 0; i < n1; i++) {
 		for (j = 0; j < n2; j++) {
-			if (fabs(asm[i][j] - c[i][j]) > 0.00001) {
+			if (fabs(asm_res[i][j] - c[i][j]) > 0.00001) {
 				return false;
 			}
 		}
