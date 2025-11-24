@@ -48,4 +48,4 @@ Mapping from uint8 based integer grayscale to double precision float
 ![screenshot of program running](image.png)
 
 # Video Link
-TBA
+[GDrive Link](https://drive.google.com/file/d/1mHpgm5l7aKZQtlA2S0BpT5qNF7-QjfBo/view?usp=sharing)
